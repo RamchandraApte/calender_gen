@@ -15,23 +15,14 @@ def class_calendar(sched):
 			27,
 			25]
 			
-	#dates = [row.split("\t")[0] for row in rows[0].splitlines()[1:]]
-	#print(dates)
 	idx = 0
 	for row in rows[2::2]:
 		row = tuple(filter(not_empty, row.splitlines()))
 		for name, full_name, type_, duration, location in chunks(row, 5):
 			def parse_time(time_str):
-				# FIXME date before
 				nonlocal idx
 				time = arrow.get(f"{dates[idx]} {time_str}", "D HH:mm", tzinfo = arrow.now().tzinfo)
-				time = time.replace(**{attr: getattr(arrow.now(), attr) for attr in ("year", "month")})
-				return time
-				# Date doesn't work
-				#date = arrow.now().shift(days=-1)
-				#date = date[idx]
-				#time = arrow.get(time_str, "HH:mm", tzinfo = arrow.now().tzinfo)
-				#return date.replace(hour=time.hour, minute=time.minute)
+				return time.replace(**{attr: getattr(arrow.now(), attr) for attr in ("year", "month")})
 			begin, end = map(parse_time, duration.replace(" ", "").split("-"))
 			idx+=1
 			print(name)
@@ -46,9 +37,3 @@ def main():
 
 if __name__=="__main__":
 	main()
-
-#print(classes_by_time)
-#e.name = "My cool event"
-#e.begin = '2014-01-01 00:00:00'
-#c.events.add(e)
-#c.events
