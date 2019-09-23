@@ -1,12 +1,10 @@
-import re, ics, itertools, arrow
-with open("wolverine.in") as in_file:
-	sched = in_file.read()
+import argparse, re, itertools, ics, arrow
 def chunks(x, n):
 	for i in range(0, len(x), n):
 		yield x[i:i+n]
 def not_empty(s):
 	return not all(map(str.isspace, s))
-def class_calendar():
+def class_calendar(sched):
 	cal = ics.Calendar()
 	rows = re.split(r"(^\d{2}:\d{2}$)", sched, flags = re.MULTILINE)
 	dates = [23,24,25,26,
@@ -42,8 +40,13 @@ def class_calendar():
 		print()
 	return cal
 
-with open("wolverine.cal", "w") as out_file:
-	print(class_calendar(), file = out_file)
+def main():
+	with open(filename+".in") as in_file, open("wolverine.cal", "w") as out_file:
+		print(class_calendar(in_file.read()), file = out_file)
+
+if __name__=="__main__":
+	main()
+
 #print(classes_by_time)
 #e.name = "My cool event"
 #e.begin = '2014-01-01 00:00:00'
