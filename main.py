@@ -7,6 +7,10 @@ def not_empty(s):
 
 logging.basicConfig(level = logging.DEBUG, format = "%(filename)s:%(funcName)s:%(lineno)s %(message)s")
 
+# Calendar parsing functions produce ics.Calendar object from texts copy-pasted from websites
+
+arrow_cfg = dict(tzinfo = arrow.now().tzinfo)
+
 def class_cal(sched):
 	cal = ics.Calendar()
 	rows = re.split(r"(^\d{2}:\d{2}$)", sched, flags = re.MULTILINE)
@@ -24,7 +28,7 @@ def class_cal(sched):
 		for name, full_name, type_, duration, location in chunks(row, 5):
 			def parse_time(time_str):
 				nonlocal idx
-				time = arrow.get(f"{dates[idx]} {time_str}", "D HH:mm", tzinfo = arrow.now().tzinfo)
+				time = arrow.get(f"{dates[idx]} {time_str}", "D HH:mm", **arrow_cfg)
 				return time.replace(**{attr: getattr(arrow.now(), attr) for attr in ("year", "month")})
 			begin, end = map(parse_time, duration.replace(" ", "").split("-"))
 			idx+=1
@@ -34,8 +38,15 @@ def class_cal(sched):
 		logging.debug("\n")
 	return cal
 
+def eecs_lab_cal(sched):
+	cal = ics.Calendar()
+	for class_ in chunks(sched.splitlines(), 6):
+		logging.debug(class_)
+		cal.events.add(ics.Todo(name = class_[1][10:], due = arrow.get(class_[4][4:], "DD MMM YYYY hh:mm:ss a", **arrow_cfg)))
+	return cal
+
 def main():
-	for type_ in ("class",):
+	for type_ in ("class", "eecs_lab"):
 		with open(f"{type_}.txt") as in_file, open(f"{type_}.cal", "w") as out_file:
 			print(globals()[f"{type_}_cal"](in_file.read()), file = out_file)
 
