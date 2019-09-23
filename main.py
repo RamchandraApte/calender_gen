@@ -1,10 +1,13 @@
-import argparse, re, itertools, ics, arrow
+import argparse, logging, re, itertools, ics, arrow
 def chunks(x, n):
 	for i in range(0, len(x), n):
 		yield x[i:i+n]
 def not_empty(s):
 	return not all(map(str.isspace, s))
-def class_calendar(sched):
+
+logging.basicConfig(level = logging.DEBUG, format = "%(filename)s:%(funcName)s:%(lineno)s %(message)s")
+
+def class_cal(sched):
 	cal = ics.Calendar()
 	rows = re.split(r"(^\d{2}:\d{2}$)", sched, flags = re.MULTILINE)
 	dates = [23,24,25,26,
@@ -25,15 +28,16 @@ def class_calendar(sched):
 				return time.replace(**{attr: getattr(arrow.now(), attr) for attr in ("year", "month")})
 			begin, end = map(parse_time, duration.replace(" ", "").split("-"))
 			idx+=1
-			print(name)
-			print(begin.humanize())
+			logging.debug(name)
+			logging.debug(begin.humanize())
 			cal.events.add(ics.Event(name=name+"\n"+full_name, begin = begin, end = end, location = location))
-		print()
+		logging.debug("\n")
 	return cal
 
 def main():
-	with open(filename+".in") as in_file, open("wolverine.cal", "w") as out_file:
-		print(class_calendar(in_file.read()), file = out_file)
+	for type_ in ("class",):
+		with open(f"{type_}.txt") as in_file, open(f"{type_}.cal", "w") as out_file:
+			print(globals()[f"{type_}_cal"](in_file.read()), file = out_file)
 
 if __name__=="__main__":
 	main()
