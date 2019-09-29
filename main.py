@@ -1,4 +1,4 @@
-import argparse, logging, re, itertools, ics, arrow
+import argparse, logging, csv, re, itertools, ics, arrow
 def chunks(x, n):
 	for i in range(0, len(x), n):
 		yield x[i:i+n]
@@ -45,8 +45,15 @@ def eecs_lab_cal(sched):
 		cal.events.add(ics.Todo(name = class_[1][10:], due = arrow.get(class_[4][4:], "DD MMM YYYY hh:mm:ss a", **arrow_cfg)))
 	return cal
 
+def eecs280_cal(sched):
+	cal = ics.Calendar()
+	for row in csv.DictReader(sched.splitlines(), dialect = csv.excel_tab):
+		if row["Deadline"]:
+			print(row["Deadline"])
+			cal.events.add(ics.Todo(name = " ".join(row["Deadline"].split()[:2]), due = arrow.get(row["Deadline"], "ddd MMM D h a", **arrow_cfg)))
+
 def main():
-	for type_ in ("class", "eecs_lab"):
+	for type_ in ("class", "eecs_lab", "eecs280"):
 		with open(f"{type_}.txt") as in_file, open(f"{type_}.cal", "w") as out_file:
 			print(globals()[f"{type_}_cal"](in_file.read()), file = out_file)
 
